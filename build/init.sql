@@ -1,6 +1,3 @@
-DROP DATABASE IF EXISTS playlist;
-CREATE DATABASE playlist;
-USE playlist;
 CREATE TABLE accesso(
   id_accesso int PRIMARY KEY auto_increment,
   email varchar(20) NOT NULL,

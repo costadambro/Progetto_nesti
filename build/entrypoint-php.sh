@@ -1,4 +1,4 @@
 #!/bin/bash
 
 composer update
-$(which apache2ctl) -DFOREGROUND
+/usr/sbin/apache2ctl -DFOREGROUND
