@@ -10,9 +10,9 @@ class Controller{
       $risultato=1;
       $token=$_COOKIE['login'];
       $conn = new MySQLi('my_mariadb', 'root', 'ciccio', 'playlist');
-      $result = $conn->query( "SELECT email FROM accesso a INNER JOIN tokenn t on a.id_accesso=t.id_accesso WHERE token='$token'");
+      $result = $conn->query( "SELECT email FROM utente a INNER JOIN tokenn t on a.id_utente=t.id_utente WHERE token='$token'");
       $email = $result->fetch_array(MYSQLI_NUM);
-      $response->getBody()->write(json_encode(array("risultato"=>$risultato, "id_accesso"=>$email)));
+      $response->getBody()->write(json_encode(array("risultato"=>$risultato, "id_utente"=>$email)));
       return $response->withHeader("Content-type", "application/json")->withStatus(200);  
     }else{
       $risultato=0;
@@ -30,13 +30,13 @@ class Controller{
     $stm->execute();
     if($stm['id_utente']!=null){
       $token = $row["token"];
-      $id_accesso = $row["id_accesso"];
+      $id_utente = $row["id_utente"];
       $risultato=1;
     }
     else{
       $risultato=0;
     }
-    $response->getBody()->write(json_encode(array("token"=>$token, "id_accesso"=>$id_accesso, "risultato"=>$risultato)));
+    $response->getBody()->write(json_encode(array("token"=>$token, "id_utente"=>$id_utente, "risultato"=>$risultato)));
     return $response->withHeader("Content-type", "application/json")->withStatus(200);
   }
 
@@ -73,12 +73,12 @@ class Controller{
     $token = $params['token'];
     $conn = new MySQLi('my_mariadb', 'root', 'ciccio', 'playlist');
 
-    $result = $conn->query("SELECT id_accesso FROM tokenn WHERE token='$token'");
+    $result = $conn->query("SELECT id_utente FROM tokenn WHERE token='$token'");
     $results = $result->fetch_all(MYSQLI_ASSOC);
     foreach ($results as $row) {
-      $id_accesso = $row['id_accesso'];
+      $id_utente = $row['id_utente'];
     }
-    $result = $conn->query("SELECT * FROM canzone WHERE id_accesso='$id_accesso'");
+    $result = $conn->query("SELECT * FROM canzone WHERE id_utente='$id_utente'");
     if($result->num_rows > 0){
       $canzoni = $result->fetch_all(MYSQLI_ASSOC);
     } else {
