@@ -9,7 +9,7 @@ export default function Login({ setPagina }) {
     const [error, setError] = useState(false);
     const [errorVuoto, setErrorVuoto] = useState(false);
     const [paginaPlaylist, setPaginaPlaylist] = useState(true);
-    const [load, setLoad] = useState(false);
+    const [load, setLoad] = useState(true);
 
     const [email, setEmail] = useState("");
     const [pass, setPass] = useState("");
@@ -20,9 +20,6 @@ export default function Login({ setPagina }) {
     function gestisciCambioPass(e) {
         setPass(e.target.value);
     }
-    useEffect(() => {
-        loginning();
-    }, [])
 
     async function loginning() {
         setPagina(true);

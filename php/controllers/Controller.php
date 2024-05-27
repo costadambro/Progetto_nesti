@@ -24,49 +24,47 @@ class Controller{
   public function login(Request $request, Response $response, $args){
     
     $params = json_decode($request->getBody()->getContents(), true);
-    $email = $params['email'];
-    $pass = $params['pass'];
-    $pass=hash("sha256",$pass);
-
-    $conn = new MySQLi('my_mariadb', 'root', 'ciccio', 'playlist');
-    $result = $conn->query("SELECT id_accesso FROM accesso WHERE email='$email' AND pass='$pass'");
-    $row=$result->fetch_array(MYSQLI_NUM);
-    if($result->num_rows > 0){
+    $stm = Database::getInstance()->prepare("SELECT id_utente, token FROM utene WHERE email = :email AND pass = :pass");
+    $stm->bindParam(':email', $params['email'], PDO::PARAM_STR);
+    $stm->bindParam(':pass', hash("sha256", $params['pass']), PDO::PARAM_STR);
+    $stm->execute();
+    if($stm['id_utente']!=null){
+      $token = $row["token"];
       $id_accesso = $row["id_accesso"];
-      $token=bin2hex(random_bytes(48));
-      setcookie("login", $token, time() + 86400 , "/");
-      $result = $conn->query("INSERT INTO tokenn (token, id_accesso) 
-      VALUES ('$token', '$id_accesso')");
       $risultato=1;
     }
     else{
       $risultato=0;
     }
-    $response->getBody()->write(json_encode(array("token"=>$token, "email"=>$email, "risultato"=>$risultato)));
+    $response->getBody()->write(json_encode(array("token"=>$token, "id_accesso"=>$id_accesso, "risultato"=>$risultato)));
     return $response->withHeader("Content-type", "application/json")->withStatus(200);
   }
 
   public function signin(Request $request, Response $response, $args){
     
     $params = json_decode($request->getBody()->getContents(), true);
-    $nome = $params['nome'];
-    $cognome = $params['cognome'];
-    $email = $params['email'];
-    $pass = $params['pass'];
-    $pass=hash("sha256",$pass);
-
-    $conn = new MySQLi('my_mariadb', 'root', 'ciccio', 'playlist');
-    $result = $conn->query("SELECT * FROM accesso WHERE email='$email'");
+    $stm = Database::getInstance()->prepare("SELECT id_utente FROM utene WHERE email = :email");
+    $stm->bindParam(':email', $params['email'], PDO::PARAM_STR);
     
-    if($result->num_rows == 1){
+    $stm->execute();
+    $stm=$stm->fetch(PDO::FETCH_ASSOC);
+
+    if($stm['id_utente']!=null){
       $risultato=1;
     }
     else{
-      $result = $conn->query("INSERT INTO accesso (nome, cognome, email, pass) 
-      VALUES ('$nome', '$cognome', '$email', '$pass')");    
+      $token=bin2hex(random_bytes(48));
+      $stm = Database::getInstance()->prepare("INSERT INTO utente (nome, cognome, email, pass, token) 
+      VALUES (:nome, :cognome, :email, :pass, :token)");    
+      $stm->bindParam(':nome', $params['nome'], PDO::PARAM_STR);
+      $stm->bindParam(':cognome', $params['cognome'], PDO::PARAM_STR);
+      $stm->bindParam(':email', $params['email'], PDO::PARAM_STR);
+      $stm->bindParam(':pass', hash("sha256", $params['pass']), PDO::PARAM_STR);
+      $stm->bindParam(':token', $token, PDO::PARAM_STR);
+      $stm->execute();
       $risultato=0;
     }
-    $response->getBody()->write(json_encode(array("email"=>$email, "risultato"=>$risultato)));
+    $response->getBody()->write(json_encode(array("risultato"=>$risultato)));
     return $response->withHeader("Content-type", "application/json")->withStatus(200);
   }
 

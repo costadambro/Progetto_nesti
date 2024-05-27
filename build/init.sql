@@ -3,7 +3,8 @@ CREATE TABLE accesso(
   email varchar(20) NOT NULL,
   nome varchar(64) NOT NULL,
   cognome varchar(64) NOT NULL,
-  pass char(128) NOT NULL
+  pass char(128) NOT NULL,
+  token varchar(128) NOT NULL
 );
 CREATE TABLE tokenn(
   id_token int not null PRIMARY KEY auto_increment,
